@@ -20,5 +20,3 @@ include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(co)
 # add_subdirectory(test)
 add_subdirectory(example)
-
-install(DIRECTORY co/ DESTINATION include/co FILES_MATCHING PATTERN "*.h")

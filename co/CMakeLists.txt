@@ -51,3 +51,5 @@ list(APPEND CO_SRC_LIST coroutine.cc)
 list(APPEND CO_SRC_LIST common.h)
 
 add_library(vco STATIC ${CO_SRC_LIST})
+install(TARGETS http_parser DESTINATION lib)
+install(DIRECTORY ../co/ DESTINATION include/co FILES_MATCHING PATTERN "*.h")
