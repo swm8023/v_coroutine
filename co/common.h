@@ -6,6 +6,8 @@
 
 namespace v {
 namespace co {
+
+// noncopyable
 class NonCopyable {
 public:
 	NonCopyable(const NonCopyable&) = delete;
@@ -16,7 +18,7 @@ protected:
 	~NonCopyable() = default;
 };
 
-
+// singleton
 template<typename T>
 class Singleton : NonCopyable {
 public:
@@ -31,7 +33,7 @@ protected:
 };
 
 
-
+// logger
 template<typename T>
 class AddSpaceHelper {
 public:

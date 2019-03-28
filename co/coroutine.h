@@ -19,7 +19,6 @@ public:
 		return ctx_->Resume();
 	}
 
-
 	PullT YieldValue() {
 		void *p = ctx_->ArgAddr();
 		if (p == nullptr) {
