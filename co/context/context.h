@@ -56,6 +56,16 @@ private:
 	ContextState state_;
 };
 
+namespace this_co {
+inline Context *Get() {
+	return g_cur_ctx;
+}
+
+inline bool InCoroutine() {
+	return g_cur_ctx != nullptr;
+}
+}
+
 
 
 }

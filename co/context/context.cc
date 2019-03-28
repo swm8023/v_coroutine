@@ -93,5 +93,6 @@ void Context::JumpTo(fcontext_t &to, TransferData &tdata) {
 	UpdatetFromTransferData(tdata_from, ret.fctx);
 
 	arg_addr_ = tdata_from->arg_addr;
-	g_cur_ctx = tdata_from->to;
+	g_cur_ctx = tdata.from;
+
 }
