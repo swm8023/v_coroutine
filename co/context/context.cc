@@ -1,6 +1,6 @@
 #include "context.h"
 
-#include <co/common/logger.h>
+#include <co/common.h>
 
 using namespace v::co;
 
@@ -56,36 +56,42 @@ void Context::RunContext(transfer_t t) {
 }
 
 
-void Context::Yield() {
+void Context::Yield(void *arg_addr) {
 	if (state_ != ContextState::ACTIVE && state_ != ContextState::DONE) {
-		LogError("only active coroutine can be yield.");
+		Log("only active coroutine can be yield.");
 		return;
 	}
-	state_ = ContextState::WAIT;
+	if (state_ == ContextState::ACTIVE) {
+		state_ = ContextState::WAIT;
+	}
 	TransferData tdata;
 	tdata.from = this;
 	tdata.to = nullptr;
+	tdata.arg_addr = arg_addr;
 	JumpTo(from_fctx_, tdata);
 }
 
-void Context::Resume() {
+bool Context::Resume() {
 	if (state_ != ContextState::CREATE && state_ != ContextState::WAIT) {
-		LogError("only wait coroutine can be resume.");
-		return;
+		return false;
 	}
 	state_ = ContextState::ACTIVE;
 	TransferData tdata;
 	tdata.from = g_cur_ctx;
 	tdata.to = this;
 	JumpTo(fctx_, tdata);
+	if (state_ == ContextState::DONE) {
+		return false;
+	}
+	return true;
 }
 
 void Context::JumpTo(fcontext_t &to, TransferData &tdata) {
 	transfer_t ret = jump_fcontext(to, &tdata);
-	TransferData *jump_data_from = static_cast<TransferData*>(ret.data);
+	TransferData *tdata_from = static_cast<TransferData*>(ret.data);
 
-	UpdatetFromTransferData(jump_data_from, ret.fctx);
+	UpdatetFromTransferData(tdata_from, ret.fctx);
 
-	g_cur_ctx = jump_data_from->from;
-
+	arg_addr_ = tdata_from->arg_addr;
+	g_cur_ctx = tdata_from->to;
 }

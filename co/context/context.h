@@ -4,7 +4,7 @@
 #include <functional>
 #include <cassert>
 
-#include <co/common/noncopyable.h>
+#include <co/common.h>
 #include <co/stack/stack_traits.h>
 #include "fcontext.h"
 
@@ -16,6 +16,7 @@ class Context;
 struct TransferData {
 	Context *from{ nullptr };
 	Context *to{ nullptr };
+	void *arg_addr{ nullptr };
 };
 
 enum ContextState {
@@ -37,8 +38,12 @@ public:
 	static void UpdatetFromTransferData(TransferData* data, fcontext_t fctx);
 	static void RunContext(transfer_t t);
 
-	void Yield();
-	void Resume();
+	void Yield(void* arg_addr = nullptr);
+	bool Resume();
+
+	void* ArgAddr() {
+		return arg_addr_;
+	}
 
 private:
 	void JumpTo(fcontext_t &to, TransferData &tdata);
@@ -47,6 +52,7 @@ private:
 	fcontext_t fctx_{ nullptr };
 	fcontext_t from_fctx_{ nullptr };
 	Code code_{ nullptr };
+	void *arg_addr_{ nullptr };
 	ContextState state_;
 };
 

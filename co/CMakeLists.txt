@@ -41,11 +41,13 @@ macro(add_vg_source_dir name)
     source_group(${groupname} FILES ${SRC_FILE})
 endmacro()
 
-add_vg_source_dir(common)
 add_vg_source_dir(context)
 add_vg_source_dir(io)
 add_vg_source_dir(stack)
 add_vg_source_dir(sync)
 
+list(APPEND CO_SRC_LIST coroutine.h)
+list(APPEND CO_SRC_LIST coroutine.cc)
+list(APPEND CO_SRC_LIST common.h)
 
 add_library(vco STATIC ${CO_SRC_LIST})
