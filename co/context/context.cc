@@ -22,8 +22,14 @@ Context* Context::Create(StackAllocator *allocator, Code && code) {
 	ctx->state_ = ContextState::CREATE;
 	ctx->fctx_ = make_fcontext(sp, stk_size, &RunContext);
 	ctx->from_fctx_ = nullptr;
+	ctx->allocator_ = allocator;
+	ctx->sctx_ = sctx;
 	ctx->code_ = std::move(code);
 	return ctx;
+}
+
+void Context::Free() {
+	allocator_->Free(sctx_);
 }
 
 void Context::UpdatetFromTransferData(TransferData* data, fcontext_t fctx) {
@@ -52,18 +58,19 @@ void Context::RunContext(transfer_t t) {
 	}
 
 	ctx->state_ = ContextState::DONE;
-	ctx->Yield();
+
+	ctx->CoYield();
 }
 
 
-void Context::Yield(void *arg_addr) {
+void Context::CoYield(void *arg_addr) {
 	if (state_ != ContextState::ACTIVE && state_ != ContextState::DONE) {
 		Log("only active coroutine can be yield.");
 		return;
 	}
 	if (state_ == ContextState::ACTIVE) {
 		state_ = ContextState::WAIT;
-	}
+	} 
 	TransferData tdata;
 	tdata.from = this;
 	tdata.to = nullptr;
@@ -71,7 +78,7 @@ void Context::Yield(void *arg_addr) {
 	JumpTo(from_fctx_, tdata);
 }
 
-bool Context::Resume() {
+bool Context::CoResume() {
 	if (state_ != ContextState::CREATE && state_ != ContextState::WAIT) {
 		return false;
 	}
@@ -81,6 +88,8 @@ bool Context::Resume() {
 	tdata.to = this;
 	JumpTo(fctx_, tdata);
 	if (state_ == ContextState::DONE) {
+		// already done, free context here
+		Free();
 		return false;
 	}
 	return true;
@@ -90,9 +99,11 @@ void Context::JumpTo(fcontext_t &to, TransferData &tdata) {
 	transfer_t ret = jump_fcontext(to, &tdata);
 	TransferData *tdata_from = static_cast<TransferData*>(ret.data);
 
-	UpdatetFromTransferData(tdata_from, ret.fctx);
+	if (ret.fctx != nullptr) {
+		UpdatetFromTransferData(tdata_from, ret.fctx);
+		arg_addr_ = tdata_from->arg_addr;
+	}
 
-	arg_addr_ = tdata_from->arg_addr;
 	g_cur_ctx = tdata.from;
 
 }
