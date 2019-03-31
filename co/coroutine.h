@@ -9,7 +9,11 @@ namespace co {
 
 extern StackAllocatorFixSizedDefault default_allocator;
 
-#define CoroutineS(code) Context::Create(&default_allocator, std::forward<Code>(code))
+struct RunCoroutine {
+	RunCoroutine(Code && code) {
+		Context::Create(&default_allocator, std::forward<Code>(code))->CoResume();
+	}
+};
 
 template<typename PullT>
 class Coroutine : NonCopyable {
