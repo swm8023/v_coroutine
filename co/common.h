@@ -51,20 +51,22 @@ class Logger : public Singleton<Logger> {
 public:
 	static const int BUFF_SZ = 4096;
 
-	template<typename... Args>
-	void Log(Args const&... args) {
-		std::ostringstream temp_os;
-		(temp_os << ... << AddSpaceHelper(args)) << std::endl;
-		std::cout << temp_os.str();
+	void Log() {
+		std::cout << std::endl;
 	}
 
+	template<typename First, typename... Args>
+	void Log(First const& first, Args const&... args) {
+		std::cout << first << " ";
+		Log(args...);
+	}
 
 protected:
 	std::ofstream fstream_;
 
 };
 
-#define Log(...)   Logger::Instance().Log(##__VA_ARGS__)
+#define CoLog(...)   Logger::Instance().Log(__VA_ARGS__)
 
 }
 }

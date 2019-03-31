@@ -8,11 +8,26 @@ namespace co {
 
 
 extern StackAllocatorFixSizedDefault default_allocator;
+
+#define CoroutineS(code) Context::Create(&default_allocator, std::forward<Code>(code))
+
 template<typename PullT>
-class Coroutine {
+class Coroutine : NonCopyable {
 public:
 	Coroutine(Code && code, StackAllocator *allocator = &default_allocator) {
 		ctx_ = Context::Create(allocator, std::forward<Code>(code));
+	}
+
+	Coroutine(Coroutine && other) {
+		ctx_ = other.ctx_;
+		other.ctx_ = nullptr;
+	}
+
+	Coroutine& operator = (Coroutine && other) {
+		if (this = &other) return *this;
+		this->ctx_ = other.ctx_;
+		other.ctx_ = nullptr;
+		return *this;
 	}
 
 	~Coroutine() {
@@ -38,12 +53,6 @@ public:
 			return PullT();
 		}
 		return std::forward<PullT>(*static_cast<PullT*>(p));
-	}
-
-private:
-	void OnContextFree() {
-		printf("...free context\n");
-		ctx_ = nullptr;
 	}
 
 private:

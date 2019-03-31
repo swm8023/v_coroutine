@@ -12,7 +12,7 @@ int main(int argc, char *argv) {
 
 	auto co = Coroutine<int>([]() {
 		for (int i = 0; i < 5; i++) {
-			Log("generate", i);
+			CoLog("generate", i);
 			CoYield<int>(i);
 		}
 	});
@@ -20,7 +20,7 @@ int main(int argc, char *argv) {
 	auto co2 = Coroutine<void>([&co]() {
 		while (co()) {
 			int v = co.YieldValue();
-			Log("get result", v);
+			CoLog("get result", v);
 		}
 	})();
 	getchar();

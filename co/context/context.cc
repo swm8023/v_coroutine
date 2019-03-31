@@ -65,7 +65,7 @@ void Context::RunContext(transfer_t t) {
 
 void Context::CoYield(void *arg_addr) {
 	if (state_ != ContextState::ACTIVE && state_ != ContextState::DONE) {
-		Log("only active coroutine can be yield.");
+		CoLog("only active coroutine can be yield.");
 		return;
 	}
 	if (state_ == ContextState::ACTIVE) {
