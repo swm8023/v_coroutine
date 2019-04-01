@@ -46,8 +46,8 @@ private:
 	T const& ref_;
 };
 
-class Logger : public Singleton<Logger> {
-	friend class Singleton<Logger>;
+class CoLogger : public Singleton<CoLogger> {
+	friend class Singleton<CoLogger>;
 public:
 	static const int BUFF_SZ = 4096;
 
@@ -66,7 +66,7 @@ protected:
 
 };
 
-#define CoLog(...)   Logger::Instance().Log(__VA_ARGS__)
+#define CoLog(...)   CoLogger::Instance().Log(__VA_ARGS__)
 
 }
 }
