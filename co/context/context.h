@@ -38,9 +38,9 @@ public:
 	void Free();
 
 	// why not use name Yield? because windows define macro Yield..
-	void CoYield(void* arg_addr = nullptr);
+	void* CoYield(void* arg_addr = nullptr);
 	// Once when resume return false, the context will already be free
-	bool CoResume();
+	bool CoResume(void *arg_addr = nullptr);
 
 	void* ArgAddr() {
 		return arg_addr_;

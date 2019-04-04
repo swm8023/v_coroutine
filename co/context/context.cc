@@ -63,10 +63,10 @@ void Context::RunContext(transfer_t t) {
 }
 
 
-void Context::CoYield(void *arg_addr) {
+void* Context::CoYield(void *arg_addr) {
 	if (state_ != ContextState::ACTIVE && state_ != ContextState::DONE) {
 		CoLog("only active coroutine can be yield.");
-		return;
+		return nullptr;
 	}
 	if (state_ == ContextState::ACTIVE) {
 		state_ = ContextState::WAIT;
@@ -76,9 +76,10 @@ void Context::CoYield(void *arg_addr) {
 	tdata.to = nullptr;
 	tdata.arg_addr = arg_addr;
 	JumpTo(from_fctx_, tdata);
+	return arg_addr_;
 }
 
-bool Context::CoResume() {
+bool Context::CoResume(void *arg_addr) {
 	if (state_ != ContextState::CREATE && state_ != ContextState::WAIT) {
 		return false;
 	}
@@ -86,6 +87,7 @@ bool Context::CoResume() {
 	TransferData tdata;
 	tdata.from = g_cur_ctx;
 	tdata.to = this;
+	tdata.arg_addr = arg_addr;
 	JumpTo(fctx_, tdata);
 	if (state_ == ContextState::DONE) {
 		// already done, free context here
